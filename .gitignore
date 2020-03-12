@@ -1,0 +1,35 @@
+# Editor-specific
+.idea/
+*.iml
+*.sublime-project
+*.sublime-workspace
+.settings
+.vscode
+
+# Installed libs
+node_modules/
+typings/
+
+# Generated
+dist/
+dist-compat/
+tmp/
+coverage/
+img/
+spec-js/
+spec-build/
+.out/
+.tmp/
+*.map
+
+# Import location artifacts
+/ajax/
+/fetch/
+/operators/
+/testing/
+/webSocket/
+
+# Misc
+npm-debug.log
+.DS_STORE
+*.tgz
