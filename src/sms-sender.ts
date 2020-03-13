@@ -7,8 +7,8 @@ import {
   LatestPerLocation,
   SendMailFunction
 } from "./types";
-import axios from "axios";
-import { catchError, map, pluck, switchMap } from "rxjs/operators";
+import { catchError, map, switchMap } from "rxjs/operators";
+import { getCoronaData } from "./coronavirus-tracker";
 
 export function createSmsSender(user: string, pass: string) {
   const send = require("gmail-send")({
@@ -16,57 +16,24 @@ export function createSmsSender(user: string, pass: string) {
     pass
   }) as SendMailFunction;
 
-  const records$ = from(
-    axios.get<CoronaData>("https://coronavirus-tracker-api.herokuapp.com/all")
-  ).pipe(
-    pluck("data"),
-    switchMap(records => of(records)),
-    catchError(error => {
-      console.log("Failed to retrieve Coronavirus data.", error);
-      return of(error);
-    })
-  );
+  const records$ = getCoronaData();
 
-  return combineLatest([of(config.search.states), records$])
-    .pipe(
-      map(countCasesPerLocation),
-      map(createMessageFromLocationRecords),
-      switchMap(text =>
-        from(
-          send({
-            to: config.recipient.email,
-            subject: "CoronaVirus Update",
-            text
-          })
-        ).pipe(
-          map(({ full }) => full),
-          catchError(error => of(`Failed to send email: ${error}`))
-        )
+  return combineLatest([of(config.search.states), records$]).pipe(
+    map(countCasesPerLocation),
+    map(createMessageFromLocationRecords),
+    switchMap(text =>
+      from(
+        send({
+          to: config.recipient.email,
+          subject: "CoronaVirus Update",
+          text
+        })
+      ).pipe(
+        map(({ full }) => full),
+        catchError(error => of(`Failed to send email: ${error}`))
       )
-    );
-}
-
-function lookUp(state: string, {locations}: Cases) {
-  return locations.find(location => location.province === state)?.latest ??
-      "no data";
-}
-
-function createMessage(
-    name: string,
-    {confirmed, deaths, recovered}: Latest
-) {
-  return `
-  ${name.toUpperCase()}
-    confirmed: ${confirmed}
-    deaths: ${deaths}
-    recovered: ${recovered}
-  `;
-}
-
-function createMessageFromLocationRecords(records: LatestPerLocation) {
-  return Object.entries(records)
-      .map(([location, latest]) => createMessage(location, latest))
-      .join("");
+    )
+  );
 }
 
 function countCasesPerLocation([states, records]: [string[], CoronaData]) {
@@ -75,10 +42,7 @@ function countCasesPerLocation([states, records]: [string[], CoronaData]) {
 
   const { confirmed, deaths, recovered } = records;
 
-  const reducer = (
-      locationToCasesMap: LatestPerLocation,
-      location: string
-  ) => {
+  const reducer = (locationToCasesMap: LatestPerLocation, location: string) => {
     return {
       ...locationToCasesMap,
       [location]: {
@@ -90,3 +54,26 @@ function countCasesPerLocation([states, records]: [string[], CoronaData]) {
   };
   return states.reduce(reducer, { world });
 }
+
+function lookUp(state: string, { locations }: Cases) {
+  return (
+      locations.find(location => location.province === state)?.latest ?? "no data"
+  );
+}
+
+function createMessageFromLocationRecords(records: LatestPerLocation) {
+  return Object.entries(records)
+      .map(([location, latest]) => createMessage(location, latest))
+      .join("");
+}
+
+function createMessage(name: string, { confirmed, deaths, recovered }: Latest) {
+  return `
+  ${name.toUpperCase()}
+    confirmed: ${confirmed}
+    deaths: ${deaths}
+    recovered: ${recovered}
+  `;
+}
+
+
