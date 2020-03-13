@@ -57,15 +57,19 @@ export interface Cases {
   source: string;
 }
 
-interface Latest {
-  confirmed: number;
-  deaths: number;
-  recovered: number;
+export interface Latest {
+  confirmed: number | string;
+  deaths: number | string;
+  recovered: number | string;
 }
 
 export interface CoronaData {
+  latest: Latest;
   confirmed: Cases;
   deaths: Cases;
-  latest: Latest;
   recovered: Cases;
+}
+
+export type LatestPerLocation = {
+  [location:string]: Latest
 }
