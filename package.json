@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node ./dist/index.js",
-    "start:dev": "ts-node ./src/index.ts"
+    "start": "npm run build && node -r dotenv/config ./dist/index.js",
+    "start:dev": "ts-node -r dotenv/config ./src/index.ts"
   },
   "keywords": [
     "coronavirus",
@@ -16,8 +16,15 @@
   ],
   "author": "edwinork",
   "license": "MIT",
+  "dependencies": {
+    "axios": "0.19.2",
+    "dotenv": "^8.2.0",
+    "gmail-send": "1.8.10",
+    "rxjs": "6.5.4"
+  },
   "devDependencies": {
     "@types/node": "^13.9.0",
+    "@types/nodemailer": "^6.4.0",
     "prettier": "^1.19.1",
     "rimraf": "^3.0.2",
     "ts-node": "^8.6.2",

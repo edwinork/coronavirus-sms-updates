@@ -30,6 +30,7 @@ spec-build/
 /webSocket/
 
 # Misc
+.env
 npm-debug.log
 .DS_STORE
 *.tgz
