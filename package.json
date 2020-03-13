@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node -r dotenv/config ./dist/index.js",
-    "start:dev": "ts-node -r dotenv/config ./src/index.ts"
+    "start": "npm run build && node ./dist/index.js",
+    "start:dev": "ts-node ./src/index.ts"
   },
   "keywords": [
     "coronavirus",
