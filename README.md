@@ -25,7 +25,7 @@ GMAIL_PASS=password12345
 # Mobile phone number that will receive SMS notification. Must be in the same format as example below.
 PHONE_NUMBER=7773331111
 
-# A mobile carrier company associated with PHONE_NUMBER. Provided carrier must be one of the following:
+# A mobile carrier company associated with PHONE_NUMBER. List of supported carriers:
 # [t-mobile, verizon, att, sprint, virgin-mobile, us-cellular, nextel, alltel]
 CARRIER=t-mobile
 
