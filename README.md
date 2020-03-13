@@ -4,39 +4,71 @@
 
 # Coronavirus(COVID-19) SMS Updates
 
+_NOTE: This is a prototype. The goal is to make it into a usable CLI tool._
 
-Sends SMS updates with latest Coronavirus(COVID-19) statistics.
+Sends SMS notifications with latest Coronavirus(COVID-19) statistics.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+### Environment Variables
 
-### Prerequisites
+Create `.env` file in the root directory. It will populate `process.env` with variables that you must define in the file. Example:
+```shell script
+# Gmail user account that will be used for sending.
+# Note that Google limits regular users to 500 outgoing emails a day.
+GMAIL_USER=example@gmail.com
 
-What things you need to install the software and how to install them
+# Gmail password. If you have 2-factor authentication enabled, use:
+# [My Account -> Sign-in & security -> Signing in to Google -> App passwords]
+GMAIL_PASS=password12345
 
-```
-Give examples
-```
+# Mobile phone number that will receive SMS notification. Must be in the same format as example below.
+PHONE_NUMBER=7773331111
 
-### Installing
+# A mobile carrier company associated with PHONE_NUMBER. Provided carrier must be one of the following:
+# [t-mobile, verizon, att, sprint, virgin-mobile, us-cellular, nextel, alltel]
+CARRIER=t-mobile
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
+# Comma-delimited (no spaces in between) list of states which should appear in the SMS notification.
+STATES_LIST=West Virginia,Arizona,California
 ```
 
-End with an example of getting some data out of the system or using it for a little demo
+### Building and Running
 
+1. Install Node.js
+2. Install NPM packages:
+    ```shell script
+    $ npm install
+    ```
+3. Run once (results in one SMS notification):
+    ```shell script
+    $ npm start
+    ```
+
+## SMS Notification Example
+
+```text
+  WORLD
+    confirmed: 128343
+    deaths: 4720
+    recovered: 68324
+
+  WEST VIRGINIA
+    confirmed: 0
+    deaths: 0
+    recovered: 0
+
+  ARIZONA
+    confirmed: 9
+    deaths: 0
+    recovered: 1
+
+  CALIFORNIA
+    confirmed: 221
+    deaths: 4
+    recovered: 6
+
+```
 ## Authors
 
 * **EdwinOrk** - *Initial work*
