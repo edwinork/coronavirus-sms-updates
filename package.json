@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": "0.19.2",
+    "dayjs": "^1.8.23",
     "dotenv": "^8.2.0",
     "gmail-send": "1.8.10",
     "rxjs": "6.5.4"

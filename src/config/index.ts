@@ -5,8 +5,12 @@ import {
   ConfigVar,
   isValidCarrier
 } from "../types";
+import { hoursToMillis } from "../utils";
 
 const dotenv = require("dotenv");
+
+// By default, send 1 update SMS every hour
+const DEFAULT_UPDATE_INTERVAL = 1;
 
 function getCredentials() {
   if (!process.env.GMAIL_USER) {
@@ -56,8 +60,37 @@ function parseIntoEmail(phoneNumber: ConfigVar, carrier: Carrier | ConfigVar) {
   return `${phoneNumber}@${carrierAddressMap[carrier]}`;
 }
 
+function parseIntoRepeaterOptions(
+  updateIntervalInHours: ConfigVar
+): Config["repeater"] {
+  if (!updateIntervalInHours) {
+    console.log(
+      `User did not configure UPDATE INTERVAL. By default, update notification will be sent only once.`
+    );
+    return {
+      type: "off"
+    };
+  }
+  const interval = Number(updateIntervalInHours);
+
+  if (isNaN(interval) || !Number.isInteger(interval) || interval <= 0) {
+    console.log(
+      `User did not provide valid update interval. Using default value of one update per every ${DEFAULT_UPDATE_INTERVAL} hours.`
+    );
+    return {
+      type: "interval",
+      milliseconds: hoursToMillis(DEFAULT_UPDATE_INTERVAL)
+    };
+  }
+
+  return {
+    type: "interval",
+    milliseconds: hoursToMillis(interval)
+  };
+}
+
 // TODO: Allow user to pass PHONE_NUMBER, CARRIER, and STATES_LIST as command line args or inside a config file.
-function createConfig():Config {
+function createConfig(): Config {
   dotenv.config();
   return {
     credentials: getCredentials(),
@@ -66,7 +99,8 @@ function createConfig():Config {
     },
     search: {
       states: parseIntoStates(process.env.STATES_LIST)
-    }
+    },
+    repeater: parseIntoRepeaterOptions(process.env.UPDATE_INTERVAL_IN_HOURS)
   };
 }
 

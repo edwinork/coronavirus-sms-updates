@@ -23,6 +23,10 @@ export type SendMailFunction = (
 ) => Promise<{ result: SentMessageInfo["response"]; full: SentMessageInfo }>;
 
 export type ConfigVar = string | undefined;
+type RepeaterInterval = {
+  type: "interval";
+  milliseconds: number;
+};
 export type Config = {
   credentials: {
     user: string;
@@ -34,6 +38,11 @@ export type Config = {
   search: {
     states: string[];
   };
+  repeater:
+    | {
+        type: "off" | "diff";
+      }
+    | RepeaterInterval;
 };
 
 interface Coordinates {
@@ -71,5 +80,5 @@ export interface CoronaData {
 }
 
 export type LatestPerLocation = {
-  [location:string]: Latest
-}
+  [location: string]: Latest;
+};
