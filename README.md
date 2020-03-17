@@ -31,6 +31,10 @@ CARRIER=t-mobile
 
 # Comma-delimited (no spaces in between) list of states which should appear in the SMS notification.
 STATES_LIST=West Virginia,Arizona,California
+
+# Time interval in hours at which SMS updates will be sent out while the app is running. If property
+# is not provided, app will send notification only once.
+UPDATE_INTERVAL_IN_HOURS=1
 ```
 
 ### Building and Running
