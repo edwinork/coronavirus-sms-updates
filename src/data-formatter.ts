@@ -1,12 +1,24 @@
 import { OperatorFunction, pipe } from "rxjs";
 import { map } from "rxjs/operators";
-import { Cases, Config, CoronaData, Latest, LatestPerLocation } from "./types";
+import {
+  Cases,
+  Config,
+  CoronaData,
+  Latest,
+  LatestPerLocation,
+  NotificationData
+} from "./types";
+import { toReadableDate } from "./utils";
 
-function countCasesPerLocation(records: CoronaData, states: string[]) {
+function countCasesPerLocation(
+  records: CoronaData,
+  states: string[]
+): NotificationData {
   // API provides case counts for the whole world in "latest" field.
   const world = records.latest;
 
   const { confirmed, deaths, recovered } = records;
+  const lastUpdated = confirmed.last_updated;
 
   const reducer = (locationToCasesMap: LatestPerLocation, location: string) => {
     return {
@@ -18,7 +30,10 @@ function countCasesPerLocation(records: CoronaData, states: string[]) {
       }
     };
   };
-  return states.reduce(reducer, { world });
+  return {
+    ...states.reduce(reducer, { world }),
+    lastUpdated
+  } as NotificationData;
 }
 
 function lookUp(state: string, { locations }: Cases) {
@@ -27,10 +42,13 @@ function lookUp(state: string, { locations }: Cases) {
   );
 }
 
-function createMessageFromLocationRecords(records: LatestPerLocation) {
-  return Object.entries(records)
+function createMessageFromLocationRecords(notificationData: NotificationData) {
+  const { lastUpdated, ...records } = notificationData;
+  const lastUpdatedMessage = `Cases as of (${toReadableDate(lastUpdated)})`;
+  const recordsMessage = Object.entries(records)
     .map(([location, latest]) => createMessage(location, latest))
     .join("");
+  return lastUpdatedMessage + "\n" + recordsMessage;
 }
 
 function createMessage(name: string, { confirmed, deaths, recovered }: Latest) {

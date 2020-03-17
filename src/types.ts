@@ -82,3 +82,9 @@ export interface CoronaData {
 export type LatestPerLocation = {
   [location: string]: Latest;
 };
+
+export type NotificationData = {
+  [P in keyof LatestPerLocation]: LatestPerLocation[P];
+} & {
+  lastUpdated: string | Date;
+};

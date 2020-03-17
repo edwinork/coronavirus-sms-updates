@@ -52,26 +52,27 @@ UPDATE_INTERVAL_IN_HOURS=1
 ## SMS Notification Example
 
 ```text
+  Cases as of (Mar 17, 2020 8:44 AM)
+  
   WORLD
-    confirmed: 128343
-    deaths: 4720
-    recovered: 68324
-
+  confirmed: 181546
+  deaths: 7126
+  recovered: 78088
+  
   WEST VIRGINIA
-    confirmed: 0
-    deaths: 0
-    recovered: 0
-
+  confirmed: 0
+  deaths: 0
+  recovered: 0
+  
   ARIZONA
-    confirmed: 9
-    deaths: 0
-    recovered: 1
-
+  confirmed: 18
+  deaths: 0
+  recovered: 1
+  
   CALIFORNIA
-    confirmed: 221
-    deaths: 4
-    recovered: 6
-
+  confirmed: 557
+  deaths: 7
+  recovered: 6
 ```
 ## Authors
 

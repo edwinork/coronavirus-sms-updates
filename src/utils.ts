@@ -19,3 +19,7 @@ export function hoursToMillis(hours: number) {
 export function getCurrentDate() {
   return dayjs().format("MMM D, YYYY h:mm A");
 }
+
+export function toReadableDate(date:string | Date) {
+  return dayjs(date).format("MMM D, YYYY h:mm A");
+}
