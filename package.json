@@ -1,6 +1,6 @@
 {
   "name": "coronavirus-sms-updates",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Sends SMS updates with latest Coronavirus(COVID-19) statistics.",
   "main": "./dist/index.js",
   "scripts": {
