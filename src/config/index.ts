@@ -44,6 +44,27 @@ function parseIntoStates(listVar: ConfigVar) {
   return parseIntoList(listVar);
 }
 
+function parseIntoRecipients(recipientsListVar: ConfigVar) {
+  if (!recipientsListVar) {
+    throw new Error(
+      "Must provide valid comma-delimited list of recipients. Example: RECIPIENTS='7773331111@t-mobile,7778884444@verizon'"
+    );
+  }
+
+  const recipientRegex = /(.*)@(.*)/;
+
+  const convertRecipient = (recipient: string) =>
+    recipient.replace(
+      recipientRegex,
+      (match, group1, group2) =>
+        `${group1}@${carrierAddressMap[group2 as Carrier]}`
+    );
+
+  return {
+    emails: parseIntoList(recipientsListVar).map(convertRecipient)
+  };
+}
+
 function parseIntoEmail(phoneNumber: ConfigVar, carrier: Carrier | ConfigVar) {
   if (!phoneNumber) {
     throw new Error("Must provide valid mobile phone number.");
@@ -94,9 +115,7 @@ function createConfig(): Config {
   dotenv.config();
   return {
     credentials: getCredentials(),
-    recipient: {
-      email: parseIntoEmail(process.env.PHONE_NUMBER, process.env.CARRIER)
-    },
+    recipients: parseIntoRecipients(process.env.RECIPIENTS_LIST),
     search: {
       states: parseIntoStates(process.env.STATES_LIST)
     },

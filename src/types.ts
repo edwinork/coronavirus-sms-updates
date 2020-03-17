@@ -32,8 +32,8 @@ export type Config = {
     user: string;
     pass: string;
   };
-  recipient: {
-    email: string;
+  recipients: {
+    emails: string[];
   };
   search: {
     states: string[];

@@ -63,7 +63,7 @@ export class UpdateSender {
   private sendOnce() {
     return this.updateProvider.pipe(
       map(text => ({
-        to: config.recipient.email,
+        to: config.recipients.emails,
         subject: "CoronaVirus Update",
         text
       })),
