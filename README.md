@@ -22,12 +22,12 @@ GMAIL_USER=example@gmail.com
 # [My Account -> Sign-in & security -> Signing in to Google -> App passwords]
 GMAIL_PASS=password12345
 
-# Mobile phone number that will receive SMS notification. Must be in the same format as example below.
-PHONE_NUMBER=7773331111
-
-# A mobile carrier company associated with PHONE_NUMBER. List of supported carriers:
-# [t-mobile, verizon, att, sprint, virgin-mobile, us-cellular, nextel, alltel]
-CARRIER=t-mobile
+# Comma-delimited (no spaces in between) list of recipients that will recieve update notifications.
+# The recipient format is as follows: PHONE_NUMBER@CARRIER
+#   PHONE_NUMBER - Mobile phone number that will receive SMS notification.
+#   CARRIER - A mobile carrier company associated with PHONE_NUMBER. List of supported carriers:
+#             [t-mobile, verizon, att, sprint, virgin-mobile, us-cellular, nextel, alltel]
+RECIPIENTS_LIST=7773331111@t-mobile,7778884444@verizon
 
 # Comma-delimited (no spaces in between) list of states which should appear in the SMS notification.
 STATES_LIST=West Virginia,Arizona,California
