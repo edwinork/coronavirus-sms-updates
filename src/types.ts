@@ -35,8 +35,8 @@ export type Config = {
   recipients: {
     emails: string[];
   };
-  search: {
-    states: string[];
+  find: {
+    location: string;
   };
   repeater:
     | {
@@ -45,46 +45,41 @@ export type Config = {
     | RepeaterInterval;
 };
 
-interface Coordinates {
-  lat: string;
-  long: string;
+export interface DataHandler<Input, Output> {
+  (data: Input):Output
 }
 
-interface Location {
-  coordinates: Coordinates;
-  country: string;
-  country_code: string;
-  history: { [key: string]: string };
-  latest: number;
-  province: string;
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
 }
 
-export interface Cases {
-  last_updated: Date;
-  latest: number;
-  locations: Location[];
-  source: string;
-}
-
-export interface Latest {
+export type Stats = {
   confirmed: number | string;
   deaths: number | string;
   recovered: number | string;
-}
-
-export interface CoronaData {
-  latest: Latest;
-  confirmed: Cases;
-  deaths: Cases;
-  recovered: Cases;
-}
-
-export type LatestPerLocation = {
-  [location: string]: Latest;
 };
 
-export type NotificationData = {
-  [P in keyof LatestPerLocation]: LatestPerLocation[P];
-} & {
-  lastUpdated: string | Date;
+export interface SmsReady {
+  location: {
+    type: "country" | "province"
+    name: string;
+    coordinates: Coordinates;
+    statistics: Stats;
+    lastUpdated: string | Date;
+  };
+}
+
+export interface Location {
+  country:     string;
+  province:    null | string;
+  updatedAt:   Date;
+  stats:       Stats;
+  coordinates: Coordinates;
+}
+export type TrackerData = {
+  /**
+   * Johns Hopkins CSSE Data Repository
+   */
+  jhucsse: Location[]
 };

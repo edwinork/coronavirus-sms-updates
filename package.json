@@ -16,19 +16,29 @@
   ],
   "author": "edwinork",
   "license": "MIT",
+  "prettier": {
+    "arrowParens": "avoid",
+    "trailingComma": "none"
+  },
   "dependencies": {
+    "@servie/events": "^1.0.0",
     "axios": "0.19.2",
     "dayjs": "^1.8.23",
     "dotenv": "^8.2.0",
     "gmail-send": "1.8.10",
-    "rxjs": "6.5.4"
+    "rxjs": "6.5.4",
+    "pageres": "^5.2.0",
+    "random-words": "^1.1.0",
+    "pretty-error": "^2.1.1",
+    "pretty-ms": "^6.0.1",
+    "signale": "^1.4.0"
   },
   "devDependencies": {
-    "@types/node": "^13.9.0",
+    "@types/node": "^13.9.5",
     "@types/nodemailer": "^6.4.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.0.2",
     "rimraf": "^3.0.2",
-    "ts-node": "^8.6.2",
+    "ts-node": "^8.8.1",
     "typescript": "^3.8.3"
   }
 }

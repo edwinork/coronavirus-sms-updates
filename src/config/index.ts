@@ -1,11 +1,5 @@
-import {
-  Carrier,
-  carrierAddressMap,
-  Config,
-  ConfigVar,
-  isValidCarrier
-} from "../types";
-import { hoursToMillis } from "../utils";
+import { Carrier, carrierAddressMap, Config, ConfigVar } from "../types";
+import { hoursToMillis } from "../common/utils";
 
 const dotenv = require("dotenv");
 
@@ -35,13 +29,13 @@ function parseIntoList(value: string) {
   return value.split(",");
 }
 
-function parseIntoStates(listVar: ConfigVar) {
-  if (!listVar) {
+function parseIntoLocation(locationVar: ConfigVar) {
+  if (!locationVar) {
     throw new Error(
-      "Must provide valid comma-delimited list of states to look up. Example: STATES_LIST='West Virginia,Arizona'"
+      "Must provide valid location to look up. Example: FIND_LOCATION='Arizona'"
     );
   }
-  return parseIntoList(listVar);
+  return locationVar;
 }
 
 function parseIntoRecipients(recipientsListVar: ConfigVar) {
@@ -63,22 +57,6 @@ function parseIntoRecipients(recipientsListVar: ConfigVar) {
   return {
     emails: parseIntoList(recipientsListVar).map(convertRecipient)
   };
-}
-
-function parseIntoEmail(phoneNumber: ConfigVar, carrier: Carrier | ConfigVar) {
-  if (!phoneNumber) {
-    throw new Error("Must provide valid mobile phone number.");
-  }
-
-  if (!isValidCarrier(carrier)) {
-    throw new Error(
-      `Must provide valid mobile carried. Supported carries: ${Object.keys(
-        carrierAddressMap
-      )}`
-    );
-  }
-
-  return `${phoneNumber}@${carrierAddressMap[carrier]}`;
 }
 
 function parseIntoRepeaterOptions(
@@ -116,8 +94,8 @@ function createConfig(): Config {
   return {
     credentials: getCredentials(),
     recipients: parseIntoRecipients(process.env.RECIPIENTS_LIST),
-    search: {
-      states: parseIntoStates(process.env.STATES_LIST)
+    find: {
+      location: parseIntoLocation(process.env.FIND_LOCATION)
     },
     repeater: parseIntoRepeaterOptions(process.env.UPDATE_INTERVAL_IN_HOURS)
   };

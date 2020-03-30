@@ -1,20 +1,22 @@
 import { config } from "./config";
-import { UpdateSender } from "./update-sender";
+import { SmsSender } from "./sms/sms-sender";
 import { SendMailFunction } from "./types";
-import { getCoronaData } from "./coronavirus-tracker";
-import { formatCoronaData } from "./data-formatter";
+import { DataProvider } from "./corona-tracker/data-provider";
+import { getDataHandler } from "./corona-tracker/data-handler";
+
+const signale = require("signale");
+require("pretty-error").start();
 
 function main() {
   const { user, pass } = config.credentials;
-  const send = require("gmail-send")({
+  const sender = require("gmail-send")({
     user,
-    pass
+    pass,
+    to: config.recipients.emails
   }) as SendMailFunction;
 
-  const formattedData$ = getCoronaData().pipe(formatCoronaData(config.search));
-
-  const updateSender = new UpdateSender(send, formattedData$);
-  updateSender.start(config.repeater);
+  const send = new SmsSender(sender).start();
+  const data = new DataProvider(getDataHandler(config));
 }
 
 main();
