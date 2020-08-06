@@ -1,66 +1,122 @@
-import { Subscription, timer } from "rxjs";
+import { from, Observable, of, Subscription, timer } from "rxjs";
 import { Config, SendMailFunction } from "../types";
-import { switchMapTo } from "rxjs/operators";
-import { getCurrentDate, prettyMillis } from "../common/utils";
+import {
+  catchError,
+  switchMap,
+  switchMapTo,
+  take,
+  takeLast,
+  timeout
+} from "rxjs/operators";
+import { getCurrentDate, minutesToMillis, prettyMillis } from "../common/utils";
 import { SmsProvider } from "./sms-provider";
-import { MailOptions } from "nodemailer/lib/sendmail-transport";
+import {
+  MailOptions,
+  SentMessageInfo
+} from "nodemailer/lib/sendmail-transport";
+import { logger } from "../common/logger";
+import { AppEvents } from "../common/app-events";
+import { once } from "@servie/events";
+
+type SentStatus = {
+  result: SentMessageInfo["response"];
+  full: SentMessageInfo;
+};
 
 export class SmsSender {
-  private subscription: Subscription | undefined;
+  private subscription: Subscription;
 
   constructor(
     private sender: SendMailFunction,
     private smsProvider = new SmsProvider()
-  ) {}
-
-  send(sms: MailOptions) {
-    console.log(`Sending sms at [${getCurrentDate()}]: `, sms);
-    this.sender(sms)
-      .then(({ full }) => console.log("SUCCESS: ", full))
-      .catch(error => console.log("Failed to send sms. REASON: ", error));
+  ) {
+    once(AppEvents, "APP_EXIT_INITIATED", () => this.stop());
   }
 
-  start(repeater: Config["repeater"] = { type: "interval",milliseconds: 30000 }) {
-    const send = (sms: MailOptions) => this.send(sms);
-    console.log("Starting update sender...");
+  async send(sms: MailOptions) {
+    logger.pending(`Sending sms at [${getCurrentDate()}]: `, sms);
+    return this.sender(sms);
+  }
 
-    //TODO: Implement "diff" case when update are sent only when data changes
+  start(repeater: Config["repeater"] = { type: "off" }) {
+    const sender$ = this.fromLatestSms();
+    logger.start("Starting update sender...");
+
+    //TODO: Implement "diff" case when update sent only when data changes
     switch (repeater.type) {
       case "off":
-        console.log("Repeater option is OFF. Update will be sent only once.");
-        this.smsProvider.fromSms().subscribe(send);
+        logger.info("Repeater option is OFF. Update will be sent only once.");
+        this.subscription = this.initSubscription(sender$);
         break;
       case "interval":
         let interval = repeater.milliseconds;
-        console.log(
+        logger.info(
           `Repeater option set to INTERVAL. Update will be sent every: [${prettyMillis(
             interval
           )}]`
         );
-        this.sendAtInterval(interval, this.smsProvider.fromSms).subscribe(send);
+        this.subscription = this.initSubscription(
+          SmsSender.sendAtInterval(interval, sender$)
+        );
         break;
       default:
-        console.warn(
+        logger.warn(
           "Repeater option is invalid. Update will be sent only once."
         );
-        this.smsProvider.fromSms().subscribe(send);
+        this.subscription = this.initSubscription(sender$);
         break;
     }
   }
 
   stop() {
     if (!this.subscription) {
-      console.warn("Stop request failed. Update sender must be started first.");
+      logger.warn(
+        "Skipping SMS provider stop request. Update sender must be started first."
+      );
       return;
     }
-
     this.subscription.unsubscribe();
+    logger.complete("SMS sender stopped.");
   }
 
-  private sendAtInterval(
+  private fromLatestSms() {
+    return this.smsProvider.fromSms().pipe(
+      takeLast(1),
+      switchMap(sms => from(this.send(sms)))
+    );
+  }
+
+  private initSubscription(sender$: Observable<SentStatus>) {
+    const onNew = ({ full, result }: SentStatus) => {
+      logger.success("Sms sent: ", result);
+      logger.debug("Details: ", full);
+    };
+    const onError = (error: unknown) =>
+      logger.error(`Failed to send a scheduled SMS. Reason: `, error);
+    const onComplete = () => {
+      logger.complete("All scheduled SMS have been sent. Exiting...");
+      AppEvents.emit("APP_EXIT_INITIATED");
+    };
+
+    return sender$.subscribe(onNew, onError, onComplete);
+  }
+
+  private static sendAtInterval(
     milliseconds: number,
-    fromSms: SmsProvider["fromSms"]
+    sender$: Observable<SentStatus>,
+    timeoutInterval = minutesToMillis(3)
   ) {
-    return timer(0, milliseconds).pipe(switchMapTo(fromSms()));
+    return timer(0, milliseconds).pipe(
+      switchMapTo(
+        sender$.pipe(
+          timeout(timeoutInterval),
+          catchError(error => {
+            logger.error("SMS provider timed out. Exiting application...");
+            AppEvents.emit("APP_EXIT_INITIATED");
+            return of(error);
+          })
+        )
+      )
+    );
   }
 }

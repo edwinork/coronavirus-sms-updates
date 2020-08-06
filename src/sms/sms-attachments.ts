@@ -1,6 +1,7 @@
 import { Attachment } from "nodemailer/lib/mailer";
 import Pageres from "pageres";
 import { Coordinates, SmsReady } from "../types";
+import {logger} from "../common/logger";
 
 type Resolution = "1024x768" | "640x360" | "1366x768" | "1920x1080";
 
@@ -27,7 +28,7 @@ export class SmsAttachments {
         }
       ];
     } catch (error) {
-      console.error("Failed to preload attachments. REASON:", error);
+      logger.error("Failed to preload attachments. REASON:", error);
     }
     return this.attachments;
   }

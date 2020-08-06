@@ -1,5 +1,6 @@
 import { Carrier, carrierAddressMap, Config, ConfigVar } from "../types";
 import { hoursToMillis } from "../common/utils";
+import {logger} from "../common/logger";
 
 const dotenv = require("dotenv");
 
@@ -63,7 +64,7 @@ function parseIntoRepeaterOptions(
   updateIntervalInHours: ConfigVar
 ): Config["repeater"] {
   if (!updateIntervalInHours) {
-    console.log(
+    logger.info(
       `User did not configure UPDATE INTERVAL. By default, update notification will be sent only once.`
     );
     return {
@@ -73,7 +74,7 @@ function parseIntoRepeaterOptions(
   const interval = Number(updateIntervalInHours);
 
   if (isNaN(interval) || !Number.isInteger(interval) || interval <= 0) {
-    console.log(
+    logger.warn(
       `User did not provide valid update interval. Using default value of one update per every ${DEFAULT_UPDATE_INTERVAL} hours.`
     );
     return {
